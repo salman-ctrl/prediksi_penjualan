@@ -11,6 +11,8 @@ const kategoriRoutes = require('./routes/kategoriRoutes');
 const produkRoutes = require('./routes/produkRoutes');
 const transaksiRoutes = require('./routes/transaksiRoutes');
 const pelangganRoutes = require('./routes/pelangganRoutes');
+const predictionRoutes = require('./routes/predictionRoutes');
+
 
 // Initialize app
 const app = express();
@@ -49,6 +51,7 @@ app.use('/api/categories', kategoriRoutes);
 app.use('/api/products', produkRoutes);
 app.use('/api/transactions', transaksiRoutes);
 app.use('/api/customers', pelangganRoutes);
+app.use('/api/predictions', predictionRoutes);
 
 // 404 handler
 app.use((req, res) => {
