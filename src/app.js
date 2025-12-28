@@ -53,6 +53,16 @@ app.use('/api/transactions', transaksiRoutes);
 app.use('/api/customers', pelangganRoutes);
 app.use('/api/predictions', predictionRoutes);
 
+console.log({
+  authRoutes,
+  userRoutes,
+  kategoriRoutes,
+  produkRoutes,
+  transaksiRoutes,
+  pelangganRoutes,
+  predictionRoutes
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({

@@ -15,11 +15,25 @@ exports.runPrediction = async (req, res) => {
       return errorResponse(res, 400, 'Parameter start_date dan end_date wajib diisi');
     }
 
-    // Path ke Python script
+    console.log('🔮 Starting ARIMA prediction...');
+    console.log(`   Period: ${start_date} to ${end_date}`);
+    console.log(`   Steps: ${forecast_steps}`);
+
+    // Path ke Python script (relatif dari controller)
     const pythonScriptPath = path.join(__dirname, '../../python/predict.py');
     
+    // Path ke Python di virtual environment
+    // PENTING: Sesuaikan dengan OS kamu
+    const isWindows = process.platform === 'win32';
+    const pythonPath = isWindows
+      ? path.join(__dirname, '../../python/venv/Scripts/python.exe')
+      : path.join(__dirname, '../../python/venv/bin/python');
+
+    console.log(`   Python path: ${pythonPath}`);
+    console.log(`   Script path: ${pythonScriptPath}`);
+
     // Eksekusi Python script
-    const pythonProcess = spawn('python', [
+    const pythonProcess = spawn(pythonPath, [
       pythonScriptPath,
       start_date,
       end_date,
@@ -29,38 +43,66 @@ exports.runPrediction = async (req, res) => {
     let dataString = '';
     let errorString = '';
 
-    // Tangkap output dari Python
+    // Tangkap stdout (JSON result)
     pythonProcess.stdout.on('data', (data) => {
       dataString += data.toString();
     });
 
+    // Tangkap stderr (log messages)
     pythonProcess.stderr.on('data', (data) => {
-      errorString += data.toString();
+      const message = data.toString();
+      console.log(message); // Forward log ke console Node.js
+      errorString += message;
     });
 
     // Setelah proses selesai
     pythonProcess.on('close', (code) => {
+      console.log(`   Python process exited with code: ${code}`);
+
       if (code !== 0) {
-        console.error('Python error:', errorString);
-        return errorResponse(res, 500, 'Gagal menjalankan prediksi', { detail: errorString });
+        console.error('❌ Python process failed');
+        console.error('Error output:', errorString);
+        return errorResponse(res, 500, 'Gagal menjalankan prediksi', { 
+          detail: errorString.split('\n').slice(-10).join('\n') // Last 10 lines
+        });
       }
 
       try {
+        // Parse JSON dari Python
         const result = JSON.parse(dataString);
         
         if (!result.success) {
-          return errorResponse(res, 500, 'Prediksi gagal', { detail: result.error });
+          console.error('❌ Prediction failed:', result.error);
+          return errorResponse(res, 500, 'Prediksi gagal', { 
+            detail: result.error 
+          });
         }
 
+        console.log('✅ Prediction completed successfully');
+        console.log(`   Predictions: ${result.data.predictions}`);
+
         return successResponse(res, 200, 'Prediksi berhasil dijalankan', result.data);
+
       } catch (parseError) {
-        console.error('Parse error:', parseError);
-        return errorResponse(res, 500, 'Gagal memproses hasil prediksi');
+        console.error('❌ Failed to parse Python output');
+        console.error('Parse error:', parseError.message);
+        console.error('Raw output:', dataString.substring(0, 500)); // First 500 chars
+        return errorResponse(res, 500, 'Gagal memproses hasil prediksi', {
+          detail: parseError.message
+        });
       }
     });
 
+    // Handle error saat spawn
+    pythonProcess.on('error', (error) => {
+      console.error('❌ Failed to start Python process:', error);
+      return errorResponse(res, 500, 'Gagal memulai proses prediksi', {
+        detail: `Python executable not found at: ${pythonPath}. Make sure virtual environment is created.`
+      });
+    });
+
   } catch (error) {
-    console.error('Prediction error:', error);
+    console.error('❌ Controller error:', error);
     return errorResponse(res, 500, 'Server error saat menjalankan prediksi');
   }
 };
