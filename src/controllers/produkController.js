@@ -113,7 +113,7 @@ exports.deleteProduk = async (req, res) => {
 
     const product = await ProdukModel.findById(id);
     if (!product) {
-      return errorResponse(res, 404, 'Produk ditemukan');
+      return errorResponse(res, 404, 'Produk tidak ditemukan');
     }
 
     await ProdukModel.delete(id);
