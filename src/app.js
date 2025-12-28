@@ -2,6 +2,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
+const listEndpoints = require('express-list-endpoints')
 require('dotenv').config();
 
 // Import routes
@@ -79,5 +80,6 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal server error'
   });
 });
+console.table(listEndpoints(app))
 
 module.exports = app;
