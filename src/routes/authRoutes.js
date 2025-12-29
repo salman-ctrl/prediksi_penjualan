@@ -8,7 +8,7 @@ const { z } = require('zod');
 // Validation schemas
 const loginSchema = z.object({
   email: z.string().email('Email tidak valid'),
-  password: z.string().min(6, 'Password minimal 6 karakter')
+  password: z.string().min(6, 'Passd minimal 6 karakter')
 });
 
 // Routes
