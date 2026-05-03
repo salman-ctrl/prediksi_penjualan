@@ -5,7 +5,6 @@ const { protect } = require('../middleware/auth');
 const { validate } = require('../middleware/validator');
 const { z } = require('zod');
 
-// Validation schema
 const predictionSchema = z.object({
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal harus YYYY-MM-DD'),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Format tanggal harus YYYY-MM-DD'),
@@ -19,7 +18,6 @@ console.log({
 });
 
 
-// Protected route
 router.post(
   '/arima',
   protect,
@@ -27,7 +25,5 @@ router.post(
   predictionController.runPrediction
 );
 
-
-router.post('/arima', validate(predictionSchema), predictionController.runPrediction);
 
 module.exports = router;

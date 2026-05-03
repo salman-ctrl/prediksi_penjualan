@@ -9,6 +9,8 @@ router.use(protect);
 // Stats routes (harus di atas /:id)
 router.get('/stats/dashboard', transaksiController.getDashboardStats);
 router.get('/sales/weekly', transaksiController.getWeeklySales);
+router.get('/products/top', transaksiController.getTopProducts); // ← TAMBAH INI
+
 
 // CRUD routes
 router.get('/', transaksiController.getAllTransaksi);

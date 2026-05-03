@@ -3,12 +3,9 @@ const { secret } = require('../config/jwt');
 const { errorResponse } = require('../utils/response');
 const UserModel = require('../models/userModel');
 
-/**
- * Middleware untuk proteksi route dengan JWT
- */
+
 const protect = async (req, res, next) => {
   try {
-    // 1. Cek header Authorization
     let token;
     if (
       req.headers.authorization &&
@@ -21,16 +18,13 @@ const protect = async (req, res, next) => {
       return errorResponse(res, 401, 'Unauthorized - Token tidak ditemukan');
     }
 
-    // 2. Verifikasi token
     const decoded = jwt.verify(token, secret);
 
-    // 3. Cek user masih ada di database
     const user = await UserModel.findById(decoded.id);
     if (!user) {
       return errorResponse(res, 401, 'User tidak ditemukan');
     }
 
-    // 4. Attach user ke request
     req.user = user;
     next();
   } catch (error) {

@@ -1,7 +1,6 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Konfigurasi connection pool untuk performa optimal
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -15,7 +14,6 @@ const pool = mysql.createPool({
   keepAliveInitialDelay: 0
 });
 
-// Test koneksi database
 const testConnection = async () => {
   try {
     const connection = await pool.getConnection();

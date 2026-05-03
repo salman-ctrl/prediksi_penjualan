@@ -2,10 +2,10 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
-const listEndpoints = require('express-list-endpoints')
+const listEndpoints = require('express-list-endpoints');
+const path = require('path');
 require('dotenv').config();
 
-// Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const kategoriRoutes = require('./routes/kategoriRoutes');
@@ -14,29 +14,25 @@ const transaksiRoutes = require('./routes/transaksiRoutes');
 const pelangganRoutes = require('./routes/pelangganRoutes');
 const predictionRoutes = require('./routes/predictionRoutes');
 
-
-// Initialize app
 const app = express();
 
-// Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// CORS configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true
 }));
 
-// Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
-// Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Health check
 app.get('/health', (req, res) => {
   res.json({
     success: true,
@@ -45,7 +41,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', kategoriRoutes);
@@ -54,17 +49,8 @@ app.use('/api/transactions', transaksiRoutes);
 app.use('/api/customers', pelangganRoutes);
 app.use('/api/predictions', predictionRoutes);
 
-console.log({
-  authRoutes,
-  userRoutes,
-  kategoriRoutes,
-  produkRoutes,
-  transaksiRoutes,
-  pelangganRoutes,
-  predictionRoutes
-});
+console.log('--- Registered Routes ---');
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -72,7 +58,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
@@ -80,6 +65,5 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal server error'
   });
 });
-console.table(listEndpoints(app))
 
 module.exports = app;
