@@ -1,0 +1,5 @@
+pandas>=1.5,<2.1
+numpy>=1.23,<1.26
+statsmodels>=0.13,<0.15
+scikit-learn>=1.2,<1.4
+mysql-connector-python>=8.0,<9.0
