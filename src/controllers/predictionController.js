@@ -16,10 +16,11 @@ exports.runPrediction = async (req, res) => {
 
     const pythonScriptPath = path.join(__dirname, '../../../python/predict.py');
 
+    // FIX: Pakai system python3 di Linux/Render, venv hanya untuk Windows lokal
     const isWindows = process.platform === 'win32';
     const pythonPath = isWindows
       ? path.join(__dirname, '../../../python/venv/Scripts/python.exe')
-      : path.join(__dirname, '../../../python/venv/bin/python');
+      : 'python3';
 
     console.log(`   Python: ${pythonPath}`);
     console.log(`   Script: ${pythonScriptPath}`);
@@ -173,7 +174,7 @@ exports.runPrediction = async (req, res) => {
 
       return errorResponse(res, 500, 'Gagal memulai proses prediksi', {
         detail: error.code === 'ENOENT'
-          ? `Python tidak ditemukan di: ${pythonPath}. Gunakan system Python atau buat venv.`
+          ? `Python tidak ditemukan di: ${pythonPath}. Pastikan python3 tersedia di server.`
           : error.message
       });
     });
