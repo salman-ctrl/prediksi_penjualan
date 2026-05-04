@@ -14,7 +14,7 @@ exports.runPrediction = async (req, res) => {
     console.log(`   Period: ${start_date} to ${end_date}`);
     console.log(`   Steps: ${forecast_steps}`);
 
-    const pythonScriptPath = path.join(__dirname, '../../../python/predict.py');
+    const pythonScriptPath = path.join(__dirname, '../../python/predict.py');
 
     // FIX: Pakai system python3 di Linux/Render, venv hanya untuk Windows lokal
     const isWindows = process.platform === 'win32';
